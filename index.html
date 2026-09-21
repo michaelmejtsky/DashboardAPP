@@ -4,7 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#25346f">
+
   <title>BAZ & Werkstatt</title>
+
+  <!-- Eigenes Icon: verhindert das alte VB-Behördenpost-Icon -->
+  <link rel="icon" type="image/png" sizes="512x512" href="./app-icon.png?v=20260922">
+  <link rel="shortcut icon" type="image/png" href="./app-icon.png?v=20260922">
+  <link rel="apple-touch-icon" sizes="180x180" href="./app-icon.png?v=20260922">
 
   <style>
     html, body {
@@ -45,6 +51,15 @@
       border-radius: 20px;
       box-shadow: 0 10px 35px rgba(38,54,111,.08);
       text-align: center;
+    }
+
+    .logo {
+      width: 76px;
+      height: 76px;
+      object-fit: contain;
+      display: block;
+      margin: 0 auto 12px;
+      border-radius: 18px;
     }
 
     .brand {
@@ -92,6 +107,7 @@
 
   <div id="loading">
     <div class="card">
+      <img class="logo" src="./app-icon.png?v=20260922" alt="Feuerwehr St. Pölten-Stadt">
       <div class="brand">FEUERWEHR ST. PÖLTEN-STADT</div>
       <h1>BAZ & Werkstatt</h1>
       <p>Mobile Dashboard wird geladen …</p>
