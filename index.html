@@ -2,18 +2,50 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+  >
+
   <meta name="theme-color" content="#25346f">
+  <meta name="application-name" content="BAZ & Werkstatt">
+  <meta name="apple-mobile-web-app-title" content="BAZ & Werkstatt">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
 
   <title>BAZ & Werkstatt</title>
 
-  <!-- Eigenes Icon: verhindert das alte VB-Behördenpost-Icon -->
-  <link rel="icon" type="image/png" sizes="512x512" href="./app-icon.png?v=20260922">
-  <link rel="shortcut icon" type="image/png" href="./app-icon.png?v=20260922">
-  <link rel="apple-touch-icon" sizes="180x180" href="./app-icon.png?v=20260922">
+  <!-- PWA -->
+  <link rel="manifest" href="./manifest.json">
+
+  <!-- ICONS -->
+  <link
+    rel="icon"
+    type="image/png"
+    sizes="512x512"
+    href="./app-icon.png?v=20260924"
+  >
+
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    href="./app-icon.png?v=20260924"
+  >
+
+  <link
+    rel="apple-touch-icon"
+    sizes="180x180"
+    href="./app-icon.png?v=20260924"
+  >
 
   <style>
-    html, body {
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
       margin: 0;
       padding: 0;
       width: 100%;
@@ -32,6 +64,10 @@
       display: block;
       background: #f4f6fa;
     }
+
+    /* =====================================================
+       LOADING
+       ===================================================== */
 
     #loading {
       position: fixed;
@@ -80,6 +116,7 @@
       margin: 8px 0 0;
       color: #718096;
       font-size: 12px;
+      line-height: 1.5;
     }
 
     .spinner {
@@ -93,39 +130,790 @@
     }
 
     @keyframes spin {
-      to { transform: rotate(360deg); }
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* =====================================================
+       INSTALLATION
+       ===================================================== */
+
+    #installOverlay {
+      position: fixed;
+      inset: 0;
+      z-index: 99999;
+
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+
+      padding: 16px;
+
+      background: rgba(15,22,42,.72);
+
+      backdrop-filter: blur(7px);
+      -webkit-backdrop-filter: blur(7px);
+    }
+
+    #installOverlay.show {
+      display: flex;
+    }
+
+    .install-card {
+      width: min(450px,100%);
+
+      padding: 26px 21px;
+
+      margin-bottom: env(safe-area-inset-bottom);
+
+      border-radius: 25px;
+
+      background: #fff;
+
+      text-align: center;
+
+      box-shadow:
+        0 25px 80px rgba(0,0,0,.32);
+    }
+
+    .install-icon {
+      width: 82px;
+      height: 82px;
+
+      margin: 0 auto 14px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      border-radius: 22px;
+
+      background: #fff;
+
+      border: 1px solid #e4e8f0;
+
+      box-shadow:
+        0 8px 22px rgba(38,54,111,.10);
+    }
+
+    .install-icon img {
+      width: 72px;
+      height: 72px;
+      object-fit: contain;
+      border-radius: 18px;
+    }
+
+    .install-brand {
+      color: #34499a;
+      font-size: 9px;
+      font-weight: 900;
+      letter-spacing: .08em;
+    }
+
+    .install-card h2 {
+      margin: 7px 0 8px;
+      color: #25346f;
+      font-size: 23px;
+      font-weight: 900;
+    }
+
+    .install-card p {
+      color: #718096;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .install-button {
+      width: 100%;
+      min-height: 54px;
+
+      margin-top: 20px;
+
+      border: 0;
+      border-radius: 14px;
+
+      background:
+        linear-gradient(
+          135deg,
+          #25346f,
+          #34499a
+        );
+
+      color: #fff;
+
+      font-size: 14px;
+      font-weight: 900;
+
+      cursor: pointer;
+    }
+
+    .install-later {
+      width: 100%;
+      min-height: 48px;
+
+      margin-top: 9px;
+
+      border: 0;
+      border-radius: 14px;
+
+      background: #edf0f5;
+
+      color: #354052;
+
+      font-size: 12px;
+      font-weight: 900;
+
+      cursor: pointer;
+    }
+
+    #iosHelp {
+      display: none;
+
+      margin-top: 16px;
+      padding: 17px;
+
+      border-radius: 15px;
+
+      background: #eef1fb;
+
+      color: #25346f;
+
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .browser-help {
+      margin-top: 15px;
+      padding: 15px;
+
+      border-radius: 15px;
+
+      background: #eef1fb;
+
+      color: #25346f;
+
+      font-size: 12px;
+      line-height: 1.6;
     }
   </style>
 </head>
 
 <body>
 
+  <!-- =====================================================
+       DASHBOARD
+       ===================================================== -->
+
   <iframe
     id="dashboardFrame"
-    src="https://script.google.com/macros/s/AKfycbzXEPgwDEjn6iX5Vf73-kyX3g7D0pQtiygkP4xT6wQ7FZb0kplB_6JnCWO0a68zmAkL/exec?page=mobileapp">
-  </iframe>
+    src="https://script.google.com/macros/s/AKfycbzXEPgwDEjn6iX5Vf73-kyX3g7D0pQtiygkP4xT6wQ7FZb0kplB_6JnCWO0a68zmAkL/exec?page=mobileapp"
+  ></iframe>
+
+
+  <!-- =====================================================
+       LOADING
+       ===================================================== -->
 
   <div id="loading">
+
     <div class="card">
-      <img class="logo" src="./app-icon.png?v=20260922" alt="Feuerwehr St. Pölten-Stadt">
-      <div class="brand">FEUERWEHR ST. PÖLTEN-STADT</div>
-      <h1>BAZ & Werkstatt</h1>
-      <p>Mobile Dashboard wird geladen …</p>
+
+      <img
+        class="logo"
+        src="./app-icon.png?v=20260924"
+        alt="Feuerwehr St. Pölten-Stadt"
+      >
+
+      <div class="brand">
+        FEUERWEHR ST. PÖLTEN-STADT
+      </div>
+
+      <h1>
+        BAZ & Werkstatt
+      </h1>
+
+      <p>
+        Mobile Dashboard wird geladen …
+      </p>
+
       <div class="spinner"></div>
+
     </div>
+
   </div>
 
+
+  <!-- =====================================================
+       INSTALLATION
+       ===================================================== -->
+
+  <div id="installOverlay">
+
+    <div class="install-card">
+
+      <div class="install-icon">
+
+        <img
+          src="./app-icon.png?v=20260924"
+          alt="BAZ & Werkstatt"
+        >
+
+      </div>
+
+      <div class="install-brand">
+        FEUERWEHR ST. PÖLTEN-STADT
+      </div>
+
+      <h2>
+        BAZ & Werkstatt installieren
+      </h2>
+
+      <p id="installText">
+        BAZ & Werkstatt kann als App
+        auf diesem Gerät installiert werden.
+      </p>
+
+
+      <div id="iosHelp">
+
+        <strong>
+          iPhone / iPad
+        </strong>
+
+        <br><br>
+
+        Tippe in Safari auf
+
+        <br><br>
+
+        <strong>
+          Teilen ⬆️
+        </strong>
+
+        <br><br>
+
+        und anschließend auf
+
+        <br>
+
+        <strong>
+          „Zum Home-Bildschirm“
+        </strong>
+
+      </div>
+
+
+      <button
+        id="installButton"
+        class="install-button"
+        style="display:none;"
+      >
+        📲 App installieren
+      </button>
+
+
+      <button
+        id="installLater"
+        class="install-later"
+      >
+        Jetzt nicht
+      </button>
+
+    </div>
+
+  </div>
+
+
   <script>
-    const frame = document.getElementById('dashboardFrame');
-    const loading = document.getElementById('loading');
 
-    frame.addEventListener('load', function() {
-      loading.style.display = 'none';
-    });
+    /* =====================================================
+       ELEMENTE
+       ===================================================== */
 
-    setTimeout(function() {
-      loading.style.display = 'none';
-    }, 10000);
+    const frame =
+      document.getElementById(
+        'dashboardFrame'
+      );
+
+    const loading =
+      document.getElementById(
+        'loading'
+      );
+
+    const installOverlay =
+      document.getElementById(
+        'installOverlay'
+      );
+
+    const installButton =
+      document.getElementById(
+        'installButton'
+      );
+
+    const installLater =
+      document.getElementById(
+        'installLater'
+      );
+
+    const installText =
+      document.getElementById(
+        'installText'
+      );
+
+    const iosHelp =
+      document.getElementById(
+        'iosHelp'
+      );
+
+
+    /* =====================================================
+       LOADING
+       ===================================================== */
+
+    frame.addEventListener(
+      'load',
+      function() {
+
+        loading.style.display =
+          'none';
+
+      }
+    );
+
+
+    setTimeout(
+      function() {
+
+        loading.style.display =
+          'none';
+
+      },
+      10000
+    );
+
+
+    /* =====================================================
+       INSTALL PARAMETER
+       ===================================================== */
+
+    const params =
+      new URLSearchParams(
+        location.search
+      );
+
+    const installRequested =
+      params.get('install') === '1';
+
+
+    /* =====================================================
+       BEREITS INSTALLIERT?
+       ===================================================== */
+
+    function isInstalled() {
+
+      return (
+
+        window.matchMedia(
+          '(display-mode: standalone)'
+        ).matches
+
+        ||
+
+        window.navigator.standalone === true
+
+      );
+
+    }
+
+
+    /* =====================================================
+       INSTALL EVENT
+       ===================================================== */
+
+    let deferredPrompt = null;
+
+
+    window.addEventListener(
+      'beforeinstallprompt',
+      function(event) {
+
+        console.log(
+          'BAZ & Werkstatt: Installation verfügbar'
+        );
+
+        event.preventDefault();
+
+        deferredPrompt =
+          event;
+
+
+        if (
+          installRequested &&
+          !isInstalled()
+        ) {
+
+          showInstall();
+
+        }
+
+      }
+    );
+
+
+    /* =====================================================
+       INSTALLATION ANZEIGEN
+       ===================================================== */
+
+    function showInstall() {
+
+      if (isInstalled()) {
+
+        cleanUrl();
+
+        return;
+
+      }
+
+      iosHelp.style.display =
+        'none';
+
+      installButton.style.display =
+        'block';
+
+      installText.innerHTML =
+        `
+          BAZ & Werkstatt kann als App
+          auf diesem Gerät installiert werden.
+        `;
+
+      installOverlay.classList.add(
+        'show'
+      );
+
+    }
+
+
+    /* =====================================================
+       IPHONE
+       ===================================================== */
+
+    function showIosInstall() {
+
+      installButton.style.display =
+        'none';
+
+      iosHelp.style.display =
+        'block';
+
+      installText.innerHTML =
+        `
+          Installiere BAZ & Werkstatt
+          auf deinem Home-Bildschirm.
+        `;
+
+      installOverlay.classList.add(
+        'show'
+      );
+
+    }
+
+
+    /* =====================================================
+       SAMSUNG FALLBACK
+       ===================================================== */
+
+    function showSamsungHelp() {
+
+      installButton.style.display =
+        'none';
+
+      iosHelp.style.display =
+        'none';
+
+      installText.innerHTML =
+        `
+          <b>
+            BAZ & Werkstatt wurde geöffnet.
+          </b>
+
+          <div class="browser-help">
+
+            Falls dein Browser keinen
+            Installationsdialog anzeigt:
+
+            <br><br>
+
+            <b>
+              ☰ Browser-Menü
+            </b>
+
+            <br>
+
+            → <b>Seite hinzufügen zu</b>
+
+            <br>
+
+            → <b>Startbildschirm</b>
+
+          </div>
+        `;
+
+      installOverlay.classList.add(
+        'show'
+      );
+
+    }
+
+
+    /* =====================================================
+       INSTALL BUTTON
+       ===================================================== */
+
+    installButton.addEventListener(
+      'click',
+      async function() {
+
+        if (!deferredPrompt) {
+
+          showSamsungHelp();
+
+          return;
+
+        }
+
+
+        deferredPrompt.prompt();
+
+
+        const result =
+          await deferredPrompt.userChoice;
+
+
+        console.log(
+          'Installation:',
+          result.outcome
+        );
+
+
+        deferredPrompt =
+          null;
+
+
+        installOverlay.classList.remove(
+          'show'
+        );
+
+
+        cleanUrl();
+
+      }
+    );
+
+
+    /* =====================================================
+       JETZT NICHT
+       ===================================================== */
+
+    installLater.addEventListener(
+      'click',
+      function() {
+
+        installOverlay.classList.remove(
+          'show'
+        );
+
+        cleanUrl();
+
+      }
+    );
+
+
+    /* =====================================================
+       URL AUFRÄUMEN
+       ===================================================== */
+
+    function cleanUrl() {
+
+      const url =
+        new URL(
+          location.href
+        );
+
+
+      url.searchParams.delete(
+        'install'
+      );
+
+
+      url.searchParams.delete(
+        'source'
+      );
+
+
+      history.replaceState(
+        {},
+        '',
+        url.pathname +
+        url.search +
+        url.hash
+      );
+
+    }
+
+
+    /* =====================================================
+       INSTALLIERT
+       ===================================================== */
+
+    window.addEventListener(
+      'appinstalled',
+      function() {
+
+        console.log(
+          'BAZ & Werkstatt wurde installiert'
+        );
+
+
+        deferredPrompt =
+          null;
+
+
+        installOverlay.classList.remove(
+          'show'
+        );
+
+
+        cleanUrl();
+
+      }
+    );
+
+
+    /* =====================================================
+       START
+       ===================================================== */
+
+    window.addEventListener(
+      'load',
+      function() {
+
+        if (!installRequested) {
+
+          return;
+
+        }
+
+
+        if (isInstalled()) {
+
+          cleanUrl();
+
+          return;
+
+        }
+
+
+        const ua =
+          navigator.userAgent;
+
+
+        const ios =
+
+          /iPhone|iPad|iPod/i.test(ua)
+
+          ||
+
+          (
+            navigator.platform === 'MacIntel' &&
+            navigator.maxTouchPoints > 1
+          );
+
+
+        /* IPHONE */
+
+        if (ios) {
+
+          setTimeout(
+            showIosInstall,
+            600
+          );
+
+          return;
+
+        }
+
+
+        /*
+          ANDROID / CHROME / SAMSUNG
+
+          Einige Sekunden warten,
+          bis beforeinstallprompt da ist.
+        */
+
+        setTimeout(
+          function() {
+
+            if (deferredPrompt) {
+
+              showInstall();
+
+            }
+
+            else {
+
+              showSamsungHelp();
+
+            }
+
+          },
+          5000
+        );
+
+      }
+    );
+
+
+    /* =====================================================
+       SERVICE WORKER
+       ===================================================== */
+
+    if ('serviceWorker' in navigator) {
+
+      window.addEventListener(
+        'load',
+        function() {
+
+          navigator.serviceWorker
+            .register('./sw.js')
+
+            .then(
+              function(registration) {
+
+                console.log(
+                  'BAZ & Werkstatt Service Worker aktiv:',
+                  registration.scope
+                );
+
+              }
+            )
+
+            .catch(
+              function(error) {
+
+                console.error(
+                  'Service Worker Fehler:',
+                  error
+                );
+
+              }
+            );
+
+        }
+      );
+
+    }
+
   </script>
 
 </body>
