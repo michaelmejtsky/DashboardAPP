@@ -178,9 +178,54 @@ async function showLink(id){
  }
  }catch(err){box.innerHTML=`<div class="notice">${esc(err.message)}</div>`}
 }
+// Der bestehende öffentliche Infoscreen wird nur auf ausdrücklichen Klick geladen.
+// Die produktiven Daten-, OVD- und Statusendpunkte bleiben unverändert.
+const LIVE_INFOSCREEN_URL = 'https://michaelmejtsky.github.io/infoscreen/';
+const LIVE_INFOSCREEN_ROOMS = Object.freeze(['ls1','ls2','ls3']);
+function renderInfoscreenLive(){
+ const target=$('#content');
+ target.innerHTML=`<div class="panel infoscreen-panel">
+  <div class="toolbar"><div><h2>Infoscreen – bestehende Live-Anzeige</h2>
+   <p class="muted">Originalprojekt: <strong>michaelmejtsky/infoscreen</strong>. Der laufende Infoscreen und seine Ausfallanzeige bleiben unverändert.</p></div>
+   <span class="pill">Nur Ansicht · Pilot</span></div>
+  <div class="infoscreen-tools"><label for="infoscreen-room">Raum</label>
+   <select id="infoscreen-room" aria-label="Anzeigeraum"><option value="ls1">LS1</option><option value="ls2">LS2</option><option value="ls3">LS3</option></select>
+   <button class="primary" id="infoscreen-preview" type="button">Vorschau laden</button>
+   <a id="infoscreen-open" class="secondary infoscreen-open" href="${LIVE_INFOSCREEN_URL}?room=ls1" target="_blank" rel="noopener noreferrer">Im neuen Tab öffnen</a>
+  </div>
+  <div id="infoscreen-host" class="infoscreen-host"><p class="muted">Die Vorschau lädt erst nach einem Klick. Dadurch entstehen beim normalen Öffnen der BAZ keine zusätzlichen Apps-Script-Anfragen.</p></div>
+  <p class="muted">Hinweis: Die Anzeige wird weiterhin von der vorhandenen Apps-Script-Web-App versorgt. Eine vollständige Cloudflare-Migration ist damit noch nicht abgeschlossen.</p>
+ </div>`;
+ const room=target.querySelector('#infoscreen-room');
+ const link=target.querySelector('#infoscreen-open');
+ const host=target.querySelector('#infoscreen-host');
+ let running=false;
+ const buildUrl=()=>{
+   const selected=LIVE_INFOSCREEN_ROOMS.includes(room.value)?room.value:'ls1';
+   return LIVE_INFOSCREEN_URL+'?room='+encodeURIComponent(selected);
+ };
+ const update=()=>{
+   const url=buildUrl();link.href=url;
+   if(running)host.querySelector('iframe').src=url;
+ };
+ room.addEventListener('change',update);
+ target.querySelector('#infoscreen-preview').addEventListener('click',()=>{
+   if(running){host.querySelector('iframe').src=buildUrl();return;}
+   const frame=document.createElement('iframe');
+   frame.className='infoscreen-frame';frame.title='Infoscreen Live – Vorschau';
+   frame.setAttribute('loading','lazy');frame.setAttribute('referrerpolicy','no-referrer');
+   frame.src=buildUrl();host.replaceChildren(frame);running=true;
+ });
+}
+
 // Neue Navigation ohne Eingriff in den bereits geprüften alten Modulleseweg.
 const originalNavigate=navigate;
 navigate=function(view){
+ if(view==='infoscreen-live'){
+  state.view=view;document.querySelectorAll('[data-screen]').forEach(b=>b.classList.toggle('selected',b.dataset.screen===view));
+  $('#page-title').textContent='Infoscreen Live';
+  clearBanner();renderInfoscreenLive();return;
+ }
  if(view==='db2'||view.startsWith('db2/')||view==='links'){
   state.view=view;document.querySelectorAll('[data-screen]').forEach(b=>b.classList.toggle('selected',b.dataset.screen===view));
   $('#page-title').textContent=view==='links'?'Serverdokumente':view==='db2'?'Dienstbuch':view.split('/').pop().replaceAll('-',' ');

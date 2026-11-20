@@ -1,21 +1,25 @@
-# BAZ 4.0 – Cloudflare-Testbranch (V0.2)
+# BAZ 4.0 – GitHub-Cloudflare-Testbranch V0.3
 
-**Nur Pilot/Demomodus. Nicht produktiv für die Feuerwehr einsetzen.**
+**Nicht produktiv einsetzen.** Der bestehende Infoscreen wird lesend eingebunden, die produktiven Daten-/OVD-Endpunkte werden nicht verändert.
 
-Dieser Branch enthält die zusammengehörigen Dateien für Cloudflare Pages (Git-Integration):
-- `index.html` – Testoberfläche
-- `styles.css` – Design
-- `app.js` – Clientlogik
-- `_worker.js` – API-Gateway, Anmeldung und Demomodus
+## Nachgewiesene Quelle
 
-## Bereitstellung
+- Live-Infoscreen: https://github.com/michaelmejtsky/infoscreen
+- Hauptseite: https://michaelmejtsky.github.io/infoscreen/
+- Das separate Repository `Infoscreenls1` wird **nicht** verwendet.
+- Das Unterverzeichnis `infoscreen/ovd` hat aktuell eine leere API-Adresse. Es wird daher nicht als produktiver OVD-Dienst übernommen.
 
-Auf Cloudflare Pages ein **neues Testprojekt** mit diesem Branch als Produktionsbranch für dieses Testprojekt erstellen. Das Build-Kommando leer lassen und das Ausgabeverzeichnis auf das Repository-Stammverzeichnis `/` setzen. Die Dateien liegen im Stammverzeichnis.
+## Cloudflare Pages (Testprojekt)
 
-Ohne die gesonderte Freigabe `BAZ4_DEMO=false` im geschützten Testsystem ist die Anwendung ausschließlich eine schreibgeschützte Demo. Echte Datenzugriffe benötigen zusätzlich Cloudflare Access, eine freigegebene interne API und Secrets in Cloudflare – **niemals im GitHub-Code**.
+- Git-Integration: `michaelmejtsky/DashboardAPP`
+- Branch: `baz4-v0-3-infoscreen-pilot`
+- Build-Befehl: leer / kein Framework
+- Ausgabeverzeichnis: `/` (Repository-Stammverzeichnis)
+- `_worker.js` arbeitet mit Cloudflare Pages `env.ASSETS`.
+- Keine Secrets, Personen- oder Dienstplandaten in dieses öffentliche Repository übertragen.
 
-**Achtung:** GitHub-Repository ist öffentlich. Keine internen Dateilinks, Google-Schlüssel, personenbezogenen Daten, Einsatzunterlagen oder echten Dienstbuchdaten committen.
+In BAZ 4.0: Menüpunkt **Infoscreen Live**; eine eingebettete Vorschau wird erst auf Klick geladen; ein Direktlink bleibt für Browser ohne Frame-Unterstützung verfügbar.
 
-Die vorherige Dashboard-App bleibt auf `main` unverändert. Dieser Branch darf nicht ungeprüft nach `main` gemergt werden.
+Die neue Anwendung läuft weiter im schreibgeschützten Demomodus, solange `BAZ4_DEMO` nicht explizit auf `false` gesetzt wird. Schreibzugriffe erfordern zusätzlich die private Backend- und Cloudflare-Access-Konfiguration und Vor-Ort-Tests. **Niemals ohne Abnahme aktivieren.**
 
-Das separate Cloudflare-Pages-Direktupload-ZIP enthält dieselben vier Dateien. Der Python-Serverdienst ist hier bewusst nicht enthalten und darf nicht öffentlich abgelegt werden.
+Die produktiven Branches `DashboardAPP/main`, `infoscreen/main` und `Infoscreenls1/main` bleiben unverändert.
