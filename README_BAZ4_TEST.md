@@ -14,7 +14,7 @@
 - Git-Integration: `michaelmejtsky/DashboardAPP`
 - Branch: `baz4-v0-3-infoscreen-pilot`
 - Build-Befehl: leer / kein Framework
-- Ausgabeverzeichnis: `/` (Repository-Stammverzeichnis)
+- Ausgabeverzeichnis: `.` (Repository-Stammverzeichnis)
 - `_worker.js` arbeitet mit Cloudflare Pages `env.ASSETS`.
 - Keine Secrets, Personen- oder Dienstplandaten in dieses öffentliche Repository übertragen.
 
